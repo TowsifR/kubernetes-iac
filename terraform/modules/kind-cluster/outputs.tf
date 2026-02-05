@@ -1,0 +1,15 @@
+output "cluster_name" {                                                                                                                                                                                 
+  description = "Name of the created cluster"                                                                                                                                                           
+  value       = kind_cluster.this.name                                                                                                                                                                  
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+output "cluster_endpoint" {                                                                                                                                                                             
+  description = "Kubernetes API endpoint"                                                                                                                                                               
+  value       = kind_cluster.this.endpoint                                                                                                                                                              
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+output "kubeconfig" {                                                                                                                                                                                   
+  description = "Kubeconfig for the cluster"                                                                                                                                                            
+  value       = kind_cluster.this.kubeconfig                                                                                                                                                            
+  sensitive   = true                                                                                                                                                                                    
+}

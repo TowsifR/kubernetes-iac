@@ -1,0 +1,9 @@
+locals {                                                                                                                                                                                                
+    is_services_cluster  = var.cluster_type == "services"                                                                                                                                                 
+    is_workloads_cluster = var.cluster_type == "workloads"                                                                                                                                                
+                                                                                                                                                                                                          
+    all_labels = merge(var.common_labels, {                                                                                                                                                               
+      "environment"  = var.env                                                                                                                                                                            
+      "cluster-type" = var.cluster_type                                                                                                                                                                   
+    })                                                                                                                                                                                                    
+  }

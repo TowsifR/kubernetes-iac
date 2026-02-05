@@ -1,0 +1,32 @@
+variable "cluster_name" {                                                                                                                                                                               
+  type        = string                                                                                                                                                                                  
+  description = "Name of the KinD cluster"                                                                                                                                                              
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+variable "cluster_type" {                                                                                                                                                                               
+  type        = string                                                                                                                                                                                  
+  description = "Cluster type (services, workloads)"                                                                                                                                                    
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+variable "kubernetes_version" {                                                                                                                                                                         
+  type        = string                                                                                                                                                                                  
+  description = "Kubernetes version for the cluster"                                                                                                                                                    
+  default     = "v1.32.2"                                                                                                                                                                               
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+variable "worker_node_count" {                                                                                                                                                                          
+  type        = number                                                                                                                                                                                  
+  description = "Number of worker nodes"                                                                                                                                                                
+  default     = 1                                                                                                                                                                                       
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+variable "env" {                                                                                                                                                                                        
+  type        = string                                                                                                                                                                                  
+  description = "Environment (dev, prod)"                                                                                                                                                               
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+variable "common_labels" {                                                                                                                                                                              
+  type        = map(string)                                                                                                                                                                             
+  description = "Labels to apply to resources"                                                                                                                                                          
+  default     = {}                                                                                                                                                                                      
+}

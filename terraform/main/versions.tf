@@ -5,6 +5,10 @@ terraform {
       kind = {                                                                                                                                                                                            
         source  = "tehcyx/kind"                                                                                                                                                                           
         version = "~> 0.9"                                                                                                                                                                                
+      }
+      flux = {
+        source  = "fluxcd/flux"
+        version = "~> 1.4"
       }                                                                                                                                                                                                   
     }                                                                                                                                                                                                     
   }   

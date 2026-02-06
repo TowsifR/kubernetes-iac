@@ -7,34 +7,51 @@ variable "env" {
     }                                                                                                                                                                                                     
   }                                                                                                                                                                                                       
                                                                                                                                                                                                           
-  variable "cluster_type" {                                                                                                                                                                               
-    type        = string                                                                                                                                                                                  
-    description = "Cluster type (services, workloads)"                                                                                                                                                    
-    validation {                                                                                                                                                                                          
-      condition     = contains(["services", "workloads"], var.cluster_type)                                                                                                                               
-      error_message = "Must be 'services' or 'workloads'."                                                                                                                                                
-    }                                                                                                                                                                                                     
-  }                                                                                                                                                                                                       
-                                                                                                                                                                                                          
-  variable "cluster_name" {                                                                                                                                                                               
-    type        = string                                                                                                                                                                                  
-    description = "Full cluster name (e.g., services-dev)"                                                                                                                                                
-  }                                                                                                                                                                                                       
-                                                                                                                                                                                                          
-  variable "kubernetes_version" {                                                                                                                                                                         
-    type    = string                                                                                                                                                                                      
-    default = "v1.32.2"                                                                                                                                                                                   
-  }                                                                                                                                                                                                       
-                                                                                                                                                                                                          
-  variable "worker_node_count" {                                                                                                                                                                          
-    type    = number                                                                                                                                                                                      
-    default = 1                                                                                                                                                                                           
-  }                                                                                                                                                                                                       
-                                                                                                                                                                                                          
-  variable "common_labels" {                                                                                                                                                                              
-    type = map(string)                                                                                                                                                                                    
-    default = {                                                                                                                                                                                           
-      "managed-by" = "terraform"                                                                                                                                                                          
-      "project"    = "kubernetes-iac"                                                                                                                                                                     
-    }                                                                                                                                                                                                     
-  }                            
+variable "cluster_type" {                                                                                                                                                                               
+  type        = string                                                                                                                                                                                  
+  description = "Cluster type (services, workloads)"                                                                                                                                                    
+  validation {                                                                                                                                                                                          
+    condition     = contains(["services", "workloads"], var.cluster_type)                                                                                                                               
+    error_message = "Must be 'services' or 'workloads'."                                                                                                                                                
+  }                                                                                                                                                                                                     
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+variable "cluster_name" {                                                                                                                                                                               
+  type        = string                                                                                                                                                                                  
+  description = "Full cluster name (e.g., services-dev)"                                                                                                                                                
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+variable "kubernetes_version" {                                                                                                                                                                         
+  type    = string                                                                                                                                                                                      
+  default = "v1.32.2"                                                                                                                                                                                   
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+variable "worker_node_count" {                                                                                                                                                                          
+  type    = number                                                                                                                                                                                      
+  default = 1                                                                                                                                                                                           
+}                                                                                                                                                                                                       
+                                                                                                                                                                                                        
+variable "common_labels" {                                                                                                                                                                              
+  type = map(string)                                                                                                                                                                                    
+  default = {                                                                                                                                                                                           
+    "managed-by" = "terraform"                                                                                                                                                                          
+    "project"    = "kubernetes-iac"                                                                                                                                                                     
+  }                                                                                                                                                                                                     
+}
+
+variable "github_owner" {                                                                                                                                                                                                
+    type        = string          
+    description = "GitHub username or organization"
+  }
+
+variable "github_repository" {
+  type        = string
+  description = "GitHub repository name"
+}
+
+variable "github_token" {
+  type        = string
+  description = "GitHub token for Flux"
+  sensitive   = true
+}
+

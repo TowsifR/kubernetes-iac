@@ -1,6 +1,13 @@
+# Local
+plan.md
+CLAUDE.md
+.env
+
 # Terraform
 .terraform/
 .terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfplan
+*-config
+terraform.tfvars

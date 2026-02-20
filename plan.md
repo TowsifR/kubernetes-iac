@@ -489,7 +489,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - nginx/
+  - localstack/
+  - external-secrets/
+  # - nginx/       # Uncomment to add
   # - prometheus/  # Uncomment to add
 ```
 
@@ -840,13 +842,15 @@ kubectl get ns
 
 ## Extension Ideas
 
-1. **Add Flux CD** - Bootstrap Flux to watch the `kubernetes/` directory
-2. **Real HelmReleases** - Install Flux and use actual HelmRelease CRDs
-3. **Multi-cluster** - Create both services + workloads clusters simultaneously
-4. **ArgoCD** - Deploy ArgoCD to services cluster, manage workloads cluster
-5. **Network Policies** - Add Calico and enforce namespace isolation
-6. **Secret Management** - Add External Secrets Operator with local secrets
-7. **Observability** - Full Prometheus + Grafana + Loki stack
+1. **Add Flux CD** - Bootstrap Flux to watch the `kubernetes/` directory ✅ Done
+2. **Real HelmReleases** - Install Flux and use actual HelmRelease CRDs ✅ Done
+3. **LocalStack** - Emulate AWS services locally (S3, SQS, Secrets Manager, etc.) ✅ Done — see `apps/base/localstack/`
+4. **External Secrets Operator** - Sync secrets from LocalStack Secrets Manager into Kubernetes ✅ Done — see `apps/base/external-secrets/` and `docs/localstack-eso-setup.md`
+5. **Crossplane** - Provision AWS resources (S3, DynamoDB) via Kubernetes CRDs against LocalStack — see `docs/crossplane-implementation.md`
+6. **Multi-cluster** - Create both services + workloads clusters simultaneously
+7. **ArgoCD** - Deploy ArgoCD to services cluster, manage workloads cluster
+8. **Network Policies** - Add Calico and enforce namespace isolation
+9. **Observability** - Full Prometheus + Grafana + Loki stack
 
 ---
 

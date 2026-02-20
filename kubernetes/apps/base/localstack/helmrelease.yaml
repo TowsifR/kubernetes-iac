@@ -25,3 +25,11 @@ spec:
       limits:
         cpu: 1000m
         memory: 1Gi
+    enableStartupScripts: true
+    startupScriptContent: |
+      awslocal secretsmanager create-secret \
+        --name crossplane-aws-credentials \
+        --region us-east-1 \
+        --secret-string "[default]
+      aws_access_key_id = test
+      aws_secret_access_key = test"

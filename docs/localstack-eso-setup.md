@@ -59,16 +59,15 @@ extraEnvVars:
 
 **In production (fleet-infra):** ESO uses IRSA — the pod's ServiceAccount token is automatically exchanged for real AWS credentials. No credentials stored anywhere.
 
-### 3. SecretStore (`apps/base/crossplane/provider-aws/secretstore.yaml`)
+### 3. ClusterSecretStore (`apps/base/crossplane/provider-aws/secretstore.yaml`)
 
-A namespaced ESO resource that defines how to connect to the secret backend.
+A cluster-scoped ESO resource that defines how to connect to the secret backend. Because it's cluster-scoped, any namespace can reference it without needing its own SecretStore.
 
 ```yaml
 apiVersion: external-secrets.io/v1beta1
-kind: SecretStore
+kind: ClusterSecretStore
 metadata:
   name: localstack-secretsmanager
-  namespace: crossplane-system
 spec:
   provider:
     aws:
@@ -97,7 +96,7 @@ spec:
   refreshInterval: 1h
   secretStoreRef:
     name: localstack-secretsmanager
-    kind: SecretStore
+    kind: ClusterSecretStore
   target:
     name: aws-credentials
     creationPolicy: Owner
@@ -148,8 +147,8 @@ In production, swapping LocalStack for real AWS would mean:
 # ESO running
 kubectl get pods -n external-secrets
 
-# SecretStore is ready
-kubectl get secretstore -n crossplane-system
+# ClusterSecretStore is ready
+kubectl get clustersecretstore
 
 # ExternalSecret is synced
 kubectl get externalsecret -n crossplane-system

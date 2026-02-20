@@ -31,7 +31,9 @@ kubernetes-iac/
 │           ├── kustomization.yaml      # Lists Flux Kustomization CRD files
 │           ├── localstack.yaml         # Flux Kustomization CRD
 │           ├── external-secrets.yaml   # Flux Kustomization CRD
-│           └── crossplane-*.yaml       # Flux Kustomization CRDs (in progress)
+│           ├── crossplane-base.yaml    # Flux Kustomization CRD
+│           ├── crossplane-config.yaml  # Flux Kustomization CRD (dependsOn: crossplane-base)
+│           └── crossplane-provider-aws.yaml  # Flux Kustomization CRD (dependsOn: crossplane-config + external-secrets)
 ├── docs/                   # Implementation plans and reference docs
 │   ├── crossplane-implementation.md
 │   └── localstack-eso-setup.md

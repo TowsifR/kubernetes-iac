@@ -50,6 +50,7 @@ kubernetes/
 │           ├── externalsecret.yaml     # ExternalSecret → creates aws-credentials Secret
 │           └── provider-config.yaml    # ProviderConfig → LocalStack endpoint
 └── clusters/dev/services/
+    ├── kustomization.yaml              # Lists all Flux Kustomization CRD files — Flux entry point
     ├── crossplane-base.yaml            # Flux Kustomization CRD
     ├── crossplane-config.yaml          # Flux Kustomization CRD, dependsOn: crossplane-base
     └── crossplane-provider-aws.yaml    # Flux Kustomization CRD, dependsOn: crossplane-config + external-secrets

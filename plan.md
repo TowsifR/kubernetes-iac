@@ -494,6 +494,9 @@ kind: Kustomization
 resources:
   - localstack.yaml           # Flux Kustomization CRD → apps/base/localstack/
   - external-secrets.yaml     # Flux Kustomization CRD → apps/base/external-secrets/
+  - crossplane-base.yaml      # Flux Kustomization CRD → apps/base/crossplane/crossplane-base/
+  - crossplane-config.yaml    # Flux Kustomization CRD → apps/base/crossplane/crossplane-config/ (dependsOn: crossplane-base)
+  - crossplane-provider-aws.yaml  # Flux Kustomization CRD → apps/base/crossplane/provider-aws/ (dependsOn: crossplane-config + external-secrets)
   # - my-app.yaml             # Add new apps here
 ```
 

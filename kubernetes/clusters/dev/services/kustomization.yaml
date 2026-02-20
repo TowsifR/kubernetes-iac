@@ -4,3 +4,6 @@ kind: Kustomization
 resources:
   - localstack.yaml
   - external-secrets.yaml
+  - crossplane-base.yaml
+  - crossplane-config.yaml
+  - crossplane-provider-aws.yaml

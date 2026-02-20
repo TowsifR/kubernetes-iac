@@ -482,17 +482,19 @@ REPLICAS=2
 
 *Mirrors `apps/base/` in fleet-infra*
 
-### kubernetes/apps/base/kustomization.yaml
+### kubernetes/clusters/dev/services/kustomization.yaml
+
+Each app gets its own Flux Kustomization CRD for independent reconciliation and `dependsOn` support.
+No flat `apps/base/kustomization.yaml` — each app directory is pointed to directly by a Flux Kustomization CRD file.
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - localstack/
-  - external-secrets/
-  # - nginx/       # Uncomment to add
-  # - prometheus/  # Uncomment to add
+  - localstack.yaml           # Flux Kustomization CRD → apps/base/localstack/
+  - external-secrets.yaml     # Flux Kustomization CRD → apps/base/external-secrets/
+  # - my-app.yaml             # Add new apps here
 ```
 
 ### kubernetes/apps/base/nginx/kustomization.yaml

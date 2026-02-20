@@ -848,7 +848,7 @@ kubectl get ns
 2. **Real HelmReleases** - Install Flux and use actual HelmRelease CRDs ✅ Done
 3. **LocalStack** - Emulate AWS services locally (S3, SQS, Secrets Manager, etc.) ✅ Done — see `apps/base/localstack/`
 4. **External Secrets Operator** - Sync secrets from LocalStack Secrets Manager into Kubernetes ✅ Done — see `apps/base/external-secrets/` and `docs/localstack-eso-setup.md`
-5. **Crossplane** - Provision AWS resources (S3, DynamoDB) via Kubernetes CRDs against LocalStack — see `docs/crossplane-implementation.md`
+5. **Crossplane** - Provision AWS resources (S3, DynamoDB) via Kubernetes CRDs against LocalStack ✅ Done — see `apps/base/crossplane/` and `docs/crossplane-implementation.md`
 6. **Multi-cluster** - Create both services + workloads clusters simultaneously
 7. **ArgoCD** - Deploy ArgoCD to services cluster, manage workloads cluster
 8. **Network Policies** - Add Calico and enforce namespace isolation

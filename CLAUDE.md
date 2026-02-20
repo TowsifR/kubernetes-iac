@@ -127,7 +127,7 @@ kubectl get kustomizations -n flux-system
 - Check `kubectl get kustomizations -A` for sync status
 
 ### Git
-- Never commit: `.terraform/`, `*.tfstate`, `*-config`, `.env`, `terraform.tfvars`
+- Never commit: `.terraform/`, `*.tfstate`, `*-config.yaml`, `*-config.json`, `.env`, `terraform.tfvars`
 - Flux commits to `kubernetes/clusters/*/flux-system/` - don't edit these manually
 
 ## Current Progress
@@ -137,7 +137,7 @@ kubectl get kustomizations -n flux-system
 - [x] Makefile for unified commands
 - [x] LocalStack Helm chart via Flux (apps/base/localstack/)
 - [x] External Secrets Operator via Flux (apps/base/external-secrets/) — see docs/localstack-eso-setup.md
-- [ ] Crossplane + AWS provider → LocalStack (apps/base/crossplane/) — see docs/crossplane-implementation.md
+- [x] Crossplane + AWS provider → LocalStack (apps/base/crossplane/) — see docs/crossplane-implementation.md
 - [ ] Part 2: Kubernetes manifests (infrastructure/ layer, namespaces, resource-quotas)
 - [ ] Calico network policies
 - [ ] Monitoring (kube-prometheus-stack)

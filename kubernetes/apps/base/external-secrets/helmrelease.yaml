@@ -27,7 +27,7 @@ spec:
       limits:
         cpu: 200m
         memory: 256Mi
-    extraEnvVars:
+    extraEnv:
       - name: AWS_ACCESS_KEY_ID
         value: test
       - name: AWS_SECRET_ACCESS_KEY

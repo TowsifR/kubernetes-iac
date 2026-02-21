@@ -10,8 +10,8 @@ LocalStack runs as a Helm chart inside the cluster and emulates AWS services (S3
 LocalStack (startup script)
   → seeds secret in Secrets Manager
 
-ESO (env vars: AWS_ACCESS_KEY_ID/SECRET_ACCESS_KEY = test)
-  → SecretStore points at LocalStack endpoint
+ESO (env vars: AWS_ACCESS_KEY_ID/SECRET_ACCESS_KEY/AWS_ENDPOINT_URL_SECRETS_MANAGER)
+  → ClusterSecretStore defines which backend to use
     → ExternalSecret pulls secret by name
       → Kubernetes Secret created in target namespace
         → Crossplane reads the Secret
@@ -48,23 +48,27 @@ Deployed via Flux HelmRelease from `charts.external-secrets.io`.
 ESO's AWS provider uses the standard AWS SDK credential chain. Since LocalStack doesn't validate credentials, we inject dummy `test/test` values as pod environment variables via `extraEnvVars` in the HelmRelease — no separate Kubernetes Secret needed.
 
 ```yaml
-extraEnvVars:
+extraEnv:
   - name: AWS_ACCESS_KEY_ID
     value: test
   - name: AWS_SECRET_ACCESS_KEY
     value: test
   - name: AWS_DEFAULT_REGION
     value: us-east-1
+  - name: AWS_ENDPOINT_URL_SECRETS_MANAGER
+    value: http://localstack.localstack.svc.cluster.local:4566
 ```
 
-**In production (fleet-infra):** ESO uses IRSA — the pod's ServiceAccount token is automatically exchanged for real AWS credentials. No credentials stored anywhere.
+ESO 2.0.x removed the `endpoint` field from the ClusterSecretStore CRD. The recommended approach is now to use the standard AWS SDK environment variable `AWS_ENDPOINT_URL_SECRETS_MANAGER`, which redirects all Secrets Manager calls to LocalStack at the pod level.
+
+**In production (fleet-infra):** ESO uses IRSA — the pod's ServiceAccount token is automatically exchanged for real AWS credentials. No credentials or endpoint overrides stored anywhere.
 
 ### 3. ClusterSecretStore (`apps/base/crossplane/provider-aws/secretstore.yaml`)
 
 A cluster-scoped ESO resource that defines how to connect to the secret backend. Because it's cluster-scoped, any namespace can reference it without needing its own SecretStore.
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ClusterSecretStore
 metadata:
   name: localstack-secretsmanager
@@ -73,21 +77,20 @@ spec:
     aws:
       service: SecretsManager
       region: us-east-1
-      endpoint: http://localstack.localstack.svc.cluster.local:4566
 ```
 
 - **ClusterSecretStore** — cluster-scoped, referenceable from any namespace. Any app in the cluster can pull secrets from LocalStack without needing its own SecretStore.
 - **No `auth` field** — ESO falls back to env var credentials set in the HelmRelease
-- **Custom endpoint** — overrides the default `amazonaws.com` to hit LocalStack
+- **No `endpoint` field** — ESO 2.0.x removed this field. The LocalStack endpoint is configured via `AWS_ENDPOINT_URL_SECRETS_MANAGER` on the ESO pod instead.
 
-**In production (fleet-infra):** Also uses `ClusterSecretStore` (`cluster-secretstore-services`), no custom endpoint, IRSA auth.
+**In production (fleet-infra):** Also uses `ClusterSecretStore` (`cluster-secretstore-services`), IRSA auth, no endpoint override needed.
 
 ### 4. ExternalSecret (`apps/base/crossplane/provider-aws/externalsecret.yaml`)
 
 Tells ESO which secret to pull and what Kubernetes Secret to create.
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: aws-credentials
@@ -138,8 +141,8 @@ We could, and in practice the values are identical. The value here is learning t
 
 In production, swapping LocalStack for real AWS would mean:
 1. Remove `extraEnvVars` from ESO HelmRelease (use IRSA instead)
-2. Remove custom `endpoint` from SecretStore
-3. The ExternalSecret and ProviderConfig stay the same
+2. Remove `AWS_ENDPOINT_URL_SECRETS_MANAGER` env var from ESO HelmRelease
+3. The ClusterSecretStore, ExternalSecret, and ProviderConfig stay the same
 
 ## Verification
 

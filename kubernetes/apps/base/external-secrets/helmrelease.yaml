@@ -34,3 +34,5 @@ spec:
         value: test
       - name: AWS_DEFAULT_REGION
         value: us-east-1
+      - name: AWS_ENDPOINT_URL_SECRETS_MANAGER
+        value: http://localstack.localstack.svc.cluster.local:4566

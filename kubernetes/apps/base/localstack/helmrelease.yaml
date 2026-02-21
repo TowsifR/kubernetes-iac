@@ -27,6 +27,7 @@ spec:
         memory: 1Gi
     enableStartupScripts: true
     startupScriptContent: |
+      #!/bin/bash
       awslocal secretsmanager create-secret \
         --name crossplane-aws-credentials \
         --region us-east-1 \

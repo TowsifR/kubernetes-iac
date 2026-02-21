@@ -30,6 +30,7 @@ Deployed via Flux HelmRelease from `localstack.github.io/helm-charts`.
 
 **Startup script** seeds the Crossplane AWS credentials into Secrets Manager:
 ```bash
+#!/bin/bash
 awslocal secretsmanager create-secret \
   --name crossplane-aws-credentials \
   --region us-east-1 \
@@ -45,7 +46,7 @@ This runs inside the LocalStack pod via the `/etc/localstack/init/ready.d` hook 
 Deployed via Flux HelmRelease from `charts.external-secrets.io`.
 
 **Why ESO needs credentials to talk to LocalStack:**
-ESO's AWS provider uses the standard AWS SDK credential chain. Since LocalStack doesn't validate credentials, we inject dummy `test/test` values as pod environment variables via `extraEnvVars` in the HelmRelease — no separate Kubernetes Secret needed.
+ESO's AWS provider uses the standard AWS SDK credential chain. Since LocalStack doesn't validate credentials, we inject dummy `test/test` values as pod environment variables via `extraEnv` in the HelmRelease — no separate Kubernetes Secret needed.
 
 ```yaml
 extraEnv:
@@ -140,7 +141,7 @@ We could, and in practice the values are identical. The value here is learning t
 | LocalStack startup script + ESO | Secret seeding, SecretStore, ExternalSecret, credential chain |
 
 In production, swapping LocalStack for real AWS would mean:
-1. Remove `extraEnvVars` from ESO HelmRelease (use IRSA instead)
+1. Remove `extraEnv` from ESO HelmRelease (use IRSA instead)
 2. Remove `AWS_ENDPOINT_URL_SECRETS_MANAGER` env var from ESO HelmRelease
 3. The ClusterSecretStore, ExternalSecret, and ProviderConfig stay the same
 

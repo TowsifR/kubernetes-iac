@@ -153,7 +153,7 @@ kubectl get kustomizations -n flux-system
 - [x] LocalStack Helm chart via Flux (apps/base/localstack/)
 - [x] External Secrets Operator via Flux (apps/base/external-secrets/) — see docs/localstack-eso-setup.md
 - [x] Crossplane + AWS provider → LocalStack (apps/base/crossplane/) — see docs/crossplane-implementation.md
-- [ ] Monitoring (kube-prometheus-stack) — **next priority**
+- [x] Monitoring (kube-prometheus-stack) — see docs/kube-prometheus-stack-implementation.md
 - [ ] Calico network policies
 - [ ] GitHub Actions CI/CD
 - [ ] infrastructure/ layer (deferred) — see docs/future/infrastructure-layer.md

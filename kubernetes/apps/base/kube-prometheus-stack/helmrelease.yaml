@@ -1,0 +1,99 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: "70.x"
+      sourceRef:
+        kind: HelmRepository
+        name: kube-prometheus-stack
+        namespace: monitoring
+      interval: 12h
+  values:
+    # KinD: these control-plane components are internal to the node and not
+    # reachable from within pods, so disable their scraping and alert rules.
+    kubeEtcd:
+      enabled: false
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+
+    # Suppress alert rules for the disabled components above
+    defaultRules:
+      rules:
+        kubeSchedulerAlerting: false
+        kubeControllerManager: false
+      disabled:
+        InfoInhibitor: true
+        Watchdog: true
+
+    grafana:
+      enabled: true
+      adminPassword: admin   # Learning only — do not use in production
+      persistence:
+        enabled: false
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+
+    prometheus:
+      prometheusSpec:
+        # Discover ALL ServiceMonitors in the cluster, not just Helm-managed ones.
+        # Without this, ServiceMonitors you create for LocalStack, ESO, etc. are ignored.
+        serviceMonitorSelectorNilUsesHelmValues: false
+        retention: 1d
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+
+    alertmanager:
+      alertmanagerSpec:
+        storage: {}   # emptyDir — no PVC needed (KinD has no default StorageClass)
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+
+    prometheusOperator:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+
+    prometheus-node-exporter:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+
+    kube-state-metrics:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi

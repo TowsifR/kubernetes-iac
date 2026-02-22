@@ -26,6 +26,8 @@ spec:
         cpu: 1000m
         memory: 1Gi
     enableStartupScripts: true
+    # Note: on restart, this script may log a ResourceExistsException — harmless, the secret still exists.
+    # TODO: make idempotent (check before create) if this becomes an issue.
     startupScriptContent: |
       #!/bin/bash
       awslocal secretsmanager create-secret \

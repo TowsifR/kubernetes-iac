@@ -426,64 +426,6 @@ metadata:
 
 ### kubernetes/clusters/dev/services/kustomization.yaml
 
-```yaml
-# Pattern: Mirrors clusters/stages/dev/clusters/services-emea/kustomization.yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-  - ../../../infrastructure/services
-  - ../../../apps/base
-
-# Load environment variables
-# Pattern: Mirrors configMapGenerator with environment.env
-configMapGenerator:
-  - name: cluster-config
-    namespace: kube-system
-    envs:
-      - environment.env
-
-# Variable substitution (like Flux postBuild.substituteFrom)
-# These vars get injected into manifests
-vars:
-  - name: CLUSTER_NAME
-    objref:
-      kind: ConfigMap
-      name: cluster-config
-      apiVersion: v1
-    fieldref:
-      fieldpath: data.CLUSTER_NAME
-```
-
-### kubernetes/clusters/dev/services/environment.env
-
-```bash
-# Pattern: Mirrors environment.env in oneai-core-fleet-infra
-CLUSTER_NAME=services-dev
-CLUSTER_TYPE=services
-ENVIRONMENT=dev
-LOG_LEVEL=debug
-REPLICAS=1
-```
-
-### kubernetes/clusters/prod/services/environment.env
-
-```bash
-CLUSTER_NAME=services-prod
-CLUSTER_TYPE=services
-ENVIRONMENT=prod
-LOG_LEVEL=info
-REPLICAS=2
-```
-
----
-
-## Part 3: Apps with Helm
-
-*Mirrors `apps/base/` in fleet-infra*
-
-### kubernetes/clusters/dev/services/kustomization.yaml
-
 Each app gets its own Flux Kustomization CRD for independent reconciliation and `dependsOn` support.
 No flat `apps/base/kustomization.yaml` — each app directory is pointed to directly by a Flux Kustomization CRD file.
 
@@ -861,24 +803,15 @@ kubectl get ns
 
 ## Prerequisites
 
+See `CLAUDE.md` → **Tools Installed** for exact installation methods used in this project (Linux/WSL2).
+
 ```bash
-# Docker (required for KinD)
-brew install --cask docker
-
-# KinD
-brew install kind
-
-# Terraform
-brew install terraform
-
-# kubectl
-brew install kubectl
-
-# Kustomize (usually bundled with kubectl)
-brew install kustomize
-
-# Optional: Flux CLI (for GitOps extension)
-brew install fluxcd/tap/flux
+# Docker Desktop (WSL2 integration required for KinD)
+# Terraform — HashiCorp apt repository
+# kubectl — pre-installed / Docker Desktop
+# KinD — installed automatically via tehcyx/kind Terraform provider
+# Flux CLI
+curl -s https://fluxcd.io/install.sh | sudo bash
 ```
 
 ---

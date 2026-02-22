@@ -36,7 +36,9 @@ kubernetes-iac/
 │           └── crossplane-provider-aws.yaml  # Flux Kustomization CRD (dependsOn: crossplane-config + external-secrets)
 ├── docs/                   # Implementation plans and reference docs
 │   ├── crossplane-implementation.md
-│   └── localstack-eso-setup.md
+│   ├── localstack-eso-setup.md
+│   └── future/             # Deferred plans for future implementation
+│       └── infrastructure-layer.md
 ├── .env                    # GitHub token (gitignored)
 └── plan.md                 # Full implementation plan (reference)
 ```
@@ -69,7 +71,6 @@ make clean     # Remove all clusters + Terraform cache
 
 # Shortcuts
 make dev-services   # Create dev services cluster
-make dev-workloads  # Create dev workloads cluster
 ```
 
 ## Manual Terraform Commands
@@ -120,8 +121,7 @@ kubectl get kustomizations -n flux-system
 4. Push changes to Git → Flux auto-applies to cluster
 
 ## Cluster Types
-- `services` - Platform services (ingress, cert-manager, argocd)
-- `workloads` - Application workloads (batch-jobs, data-processing)
+- `services` - Platform services (LocalStack, ESO, Crossplane, monitoring)
 
 ## Environments
 - `dev` - 1 worker node
@@ -139,6 +139,7 @@ kubectl get kustomizations -n flux-system
 - Don't `kubectl apply` manually - push to Git instead
 - Flux auto-syncs every 1 minute
 - Check `kubectl get kustomizations -A` for sync status
+- Each app gets its own Flux Kustomization CRD in `clusters/dev/services/` (not a flat kustomization). This allows `dependsOn` ordering and independent reconciliation — critical when apps install CRDs that other apps depend on (e.g. Crossplane's 3-stage bootstrap)
 
 ### Git
 - Never commit: `.terraform/`, `*.tfstate`, `*-config.yaml`, `*-config.json`, `.env`, `terraform.tfvars`
@@ -152,10 +153,10 @@ kubectl get kustomizations -n flux-system
 - [x] LocalStack Helm chart via Flux (apps/base/localstack/)
 - [x] External Secrets Operator via Flux (apps/base/external-secrets/) — see docs/localstack-eso-setup.md
 - [x] Crossplane + AWS provider → LocalStack (apps/base/crossplane/) — see docs/crossplane-implementation.md
-- [ ] Part 2: Kubernetes manifests (infrastructure/ layer, namespaces, resource-quotas)
+- [ ] Monitoring (kube-prometheus-stack) — **next priority**
 - [ ] Calico network policies
-- [ ] Monitoring (kube-prometheus-stack)
 - [ ] GitHub Actions CI/CD
+- [ ] infrastructure/ layer (deferred) — see docs/future/infrastructure-layer.md
 
 ## When Helping With This Project
 

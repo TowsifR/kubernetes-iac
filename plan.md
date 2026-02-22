@@ -23,7 +23,7 @@ This project teaches enterprise infrastructure patterns without cloud costs:
 ## Project Structure
 
 ```
-local-infra-learning/
+kubernetes-iac/
 │
 ├── terraform/                      # Cluster creation (mirrors oneai-core-infra)
 │   ├── main/
@@ -45,45 +45,20 @@ local-infra-learning/
 │
 ├── kubernetes/                     # App deployment (mirrors oneai-core-fleet-infra)
 │   ├── apps/                      # Helm charts / app manifests
-│   │   ├── base/                  # Shared app configs
-│   │   │   ├── nginx/
-│   │   │   │   ├── kustomization.yaml
-│   │   │   │   ├── namespace.yaml
-│   │   │   │   ├── deployment.yaml
-│   │   │   │   └── service.yaml
-│   │   │   ├── prometheus/
-│   │   │   │   ├── kustomization.yaml
-│   │   │   │   └── helmrelease.yaml
-│   │   │   └── kustomization.yaml
-│   │   └── README.md
-│   │
-│   ├── infrastructure/            # Cluster-level resources
-│   │   ├── base/
-│   │   │   ├── namespaces.yaml
-│   │   │   ├── resource-quotas.yaml
-│   │   │   └── kustomization.yaml
-│   │   ├── services/              # Services cluster overlay
-│   │   │   ├── kustomization.yaml
-│   │   │   └── patches/
-│   │   └── workloads/             # Workloads cluster overlay
-│   │       ├── kustomization.yaml
-│   │       └── patches/
+│   │   └── base/                  # Shared app configs
+│   │       ├── localstack/        # LocalStack HelmRelease
+│   │       ├── external-secrets/  # ESO HelmRelease
+│   │       └── crossplane/        # Crossplane HelmRelease + provider
 │   │
 │   └── clusters/                  # Environment configs (mirrors clusters/stages/)
-│       ├── dev/
-│       │   ├── services/
-│       │   │   ├── kustomization.yaml
-│       │   │   └── environment.env
-│       │   └── workloads/
-│       │       ├── kustomization.yaml
-│       │       └── environment.env
-│       └── prod/
-│           ├── services/
-│           │   ├── kustomization.yaml
-│           │   └── environment.env
-│           └── workloads/
+│       └── dev/
+│           └── services/
 │               ├── kustomization.yaml
-│               └── environment.env
+│               ├── localstack.yaml
+│               ├── external-secrets.yaml
+│               ├── crossplane-base.yaml
+│               ├── crossplane-config.yaml
+│               └── crossplane-provider-aws.yaml
 │
 ├── .github/
 │   └── workflows/
@@ -298,131 +273,7 @@ worker_node_count  = 2
 
 *Mirrors patterns from `oneai-core-fleet-infra`*
 
-### Kustomize Layer Pattern
-
-```
-kubernetes/
-├── apps/base/           # App definitions (like apps/base/ in fleet-infra)
-├── infrastructure/      # Cluster resources (like base/infrastructure/)
-│   ├── base/           # Shared across all clusters
-│   ├── services/       # Services cluster overlay
-│   └── workloads/      # Workloads cluster overlay
-└── clusters/           # Environment configs (like clusters/stages/)
-    ├── dev/
-    └── prod/
-```
-
-### kubernetes/infrastructure/base/kustomization.yaml
-
-```yaml
-# Pattern: Mirrors base/infrastructure/kustomization.yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-  - namespaces.yaml
-  - resource-quotas.yaml
-```
-
-### kubernetes/infrastructure/base/namespaces.yaml
-
-```yaml
-# Base namespaces created for ALL clusters
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: monitoring
-  labels:
-    purpose: observability
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: flux-system
-  labels:
-    purpose: gitops
-```
-
-### kubernetes/infrastructure/services/kustomization.yaml
-
-```yaml
-# Pattern: Cluster-type specific overlay
-# Mirrors: clusters/stages/prod/clusters/services-emea/kustomization.yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-  - ../base
-  - namespaces.yaml
-
-# Services-specific namespaces
-# Pattern: Conditional resources based on cluster type
-```
-
-### kubernetes/infrastructure/services/namespaces.yaml
-
-```yaml
-# Services cluster gets platform namespaces
-# Pattern: Mirrors is_service_cluster conditional in Terraform
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ingress-nginx
-  labels:
-    cluster-type: services
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cert-manager
-  labels:
-    cluster-type: services
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: argocd
-  labels:
-    cluster-type: services
-```
-
-### kubernetes/infrastructure/workloads/kustomization.yaml
-
-```yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-  - ../base
-  - namespaces.yaml
-```
-
-### kubernetes/infrastructure/workloads/namespaces.yaml
-
-```yaml
-# Workloads cluster gets job namespaces
-# Pattern: Mirrors is_factory_cluster conditional
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: batch-jobs
-  labels:
-    cluster-type: workloads
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: data-processing
-  labels:
-    cluster-type: workloads
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: argo-workflows
-  labels:
-    cluster-type: workloads
-```
+> **Note:** The `infrastructure/` layer (PriorityClass, ResourceQuota, LimitRange) and a separate workloads cluster are deferred. Fleet-infra's `infrastructure/` is primarily Karpenter NodePools (EKS-specific), which don't apply to KinD. See `docs/future/infrastructure-layer.md` for the plan when this becomes relevant.
 
 ### kubernetes/clusters/dev/services/kustomization.yaml
 
@@ -521,76 +372,13 @@ spec:
 
 ---
 
-## Part 4: Simulated Karpenter NodePools
+## Part 4: infrastructure/ Layer (Deferred)
 
 *Mirrors `base/infrastructure/*-karpenter-resources.yaml`*
 
-### kubernetes/infrastructure/base/nodepool-configs.yaml
+Fleet-infra's `infrastructure/` layer is primarily Karpenter `NodePool` and `EC2NodeClass` objects — EKS-specific resources that don't apply to KinD. The KinD equivalent (PriorityClass, ResourceQuota, LimitRange) is deferred until there are enough namespaces and workloads to make it worthwhile.
 
-```yaml
-# These are ConfigMaps that SIMULATE NodePool configs
-# In production, these would be Karpenter NodePool CRDs
-# Pattern: Learn the structure without needing Karpenter installed
-
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nodepool-default
-  namespace: kube-system
-  labels:
-    nodepool-type: default
-data:
-  config: |
-    # Simulates default-karpenter-resources.yaml
-    instanceTypes:
-      - c5.large
-      - c5.xlarge
-      - m5.large
-      - m5.xlarge
-    capacityType: on-demand
-    consolidation: WhenUnderutilized
-    limits:
-      cpu: 100
-      memory: 200Gi
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nodepool-gpu
-  namespace: kube-system
-  labels:
-    nodepool-type: gpu
-data:
-  config: |
-    # Simulates gpu-karpenter-resources.yaml
-    instanceTypes:
-      - p4d.24xlarge
-    capacityType: on-demand
-    taints:
-      - key: nvidia.com/gpu
-        effect: NoSchedule
-    limits:
-      nvidia.com/gpu: 8
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nodepool-infra
-  namespace: kube-system
-  labels:
-    nodepool-type: infra
-data:
-  config: |
-    # Simulates infra-karpenter-resources.yaml
-    instanceTypes:
-      - c5.large
-      - m5.large
-    taints:
-      - key: infra
-        value: "true"
-        effect: NoSchedule
-    consolidation: WhenEmpty
-```
+See `docs/future/infrastructure-layer.md` for the full plan.
 
 ---
 
@@ -778,11 +566,9 @@ kubectl get ns
 | **Terraform module composition** | `oneai-core-infra/main/main.tf` | `terraform/main/main.tf` |
 | **Cluster type conditionals** | `tf-eks-base/locals.tf` | `terraform/main/locals.tf` + Kustomize overlays |
 | **Environment tfvars** | `main/tfvars/*.tfvars` | `terraform/main/tfvars/` |
-| **Kustomize base + overlays** | `oneai-core-fleet-infra/base/` | `kubernetes/infrastructure/` |
 | **Cluster configs** | `clusters/stages/{env}/clusters/` | `kubernetes/clusters/{env}/` |
-| **Environment variables** | `environment.env` files | `kubernetes/clusters/{env}/{type}/environment.env` |
 | **HelmRelease CRDs** | `apps/base/*/helmrelease.yaml` | `kubernetes/apps/base/*/helmrelease.yaml` |
-| **Karpenter NodePools** | `base/infrastructure/*-karpenter-resources.yaml` | `kubernetes/infrastructure/base/nodepool-configs.yaml` (simulated) |
+| **Karpenter NodePools** | `base/infrastructure/*-karpenter-resources.yaml` | Deferred — see `docs/future/infrastructure-layer.md` |
 | **Matrix CI/CD** | `plan_eks_clusters.yml` | Both workflow files |
 
 ---
@@ -794,10 +580,10 @@ kubectl get ns
 3. **LocalStack** - Emulate AWS services locally (S3, SQS, Secrets Manager, etc.) ✅ Done — see `apps/base/localstack/`
 4. **External Secrets Operator** - Sync secrets from LocalStack Secrets Manager into Kubernetes ✅ Done — see `apps/base/external-secrets/` and `docs/localstack-eso-setup.md`
 5. **Crossplane** - Provision AWS resources (S3, DynamoDB) via Kubernetes CRDs against LocalStack ✅ Done — see `apps/base/crossplane/` and `docs/crossplane-implementation.md`
-6. **Multi-cluster** - Create both services + workloads clusters simultaneously
-7. **ArgoCD** - Deploy ArgoCD to services cluster, manage workloads cluster
-8. **Network Policies** - Add Calico and enforce namespace isolation
-9. **Observability** - Full Prometheus + Grafana + Loki stack
+6. **Observability** - kube-prometheus-stack (Prometheus + Grafana) — **next priority**
+7. **Network Policies** - Add Calico and enforce namespace isolation
+8. **GitHub Actions CI/CD** - Validate Kustomize builds on PR
+9. **infrastructure/ layer** - PriorityClass, ResourceQuota, LimitRange — deferred, see `docs/future/infrastructure-layer.md`
 
 ---
 

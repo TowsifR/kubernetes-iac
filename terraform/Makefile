@@ -16,7 +16,6 @@ help:
 	@echo ""
 	@echo "Shortcuts:"
 	@echo "  dev-services  - Create dev services cluster"
-	@echo "  dev-workloads - Create dev workloads cluster"
 	@echo ""
 	@echo "Prerequisites:"
 	@echo "  export TF_VAR_github_token=ghp_xxx"
@@ -48,6 +47,3 @@ clean:
 # Shortcuts
 dev-services:
 	$(MAKE) cluster ENV=dev CLUSTER_TYPE=services
-
-dev-workloads:
-	$(MAKE) cluster ENV=dev CLUSTER_TYPE=workloads

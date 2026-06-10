@@ -12,6 +12,8 @@ spec:
     name: flux-system
   path: ./kubernetes/apps/base/localstack
   prune: true
+  dependsOn:
+    - name: traefik
   wait: true
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2

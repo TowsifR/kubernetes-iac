@@ -1,0 +1,16 @@
+# LocalStack API — http://localstack.localtest.me
+# Health check: http://localstack.localtest.me/_localstack/health
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: localstack
+  namespace: localstack
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`localstack.localtest.me`)
+      kind: Rule
+      services:
+        - name: localstack
+          port: 4566

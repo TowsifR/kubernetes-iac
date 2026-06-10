@@ -7,4 +7,5 @@ resources:
   - crossplane-base.yaml
   - crossplane-config.yaml
   - crossplane-provider-aws.yaml
+  - traefik.yaml
   - kube-prometheus-stack.yaml

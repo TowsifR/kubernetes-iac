@@ -8,6 +8,5 @@ CLAUDE.md
 *.tfstate
 *.tfstate.*
 *.tfplan
-*-config.yaml
-*-config.json
+*-config*
 terraform.tfvars

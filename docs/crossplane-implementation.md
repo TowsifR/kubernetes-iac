@@ -88,7 +88,7 @@ Installs the AWS provider package:
 
 Configures how Crossplane authenticates and connects to AWS (LocalStack) using the ESO pattern:
 
-- **ClusterSecretStore** (`localstack-secretsmanager`) — points ESO at LocalStack's Secrets Manager endpoint with no auth (ESO pod has `AWS_ACCESS_KEY_ID=test` via `extraEnvVars` in the ESO HelmRelease)
+- **ClusterSecretStore** (`localstack-secretsmanager`) — tells ESO to use LocalStack's Secrets Manager with no auth block (ESO pod has `AWS_ACCESS_KEY_ID=test` and `AWS_ENDPOINT_URL_SECRETS_MANAGER` via `extraEnv` in the ESO HelmRelease)
 - **ExternalSecret** (`aws-credentials`) — pulls the `crossplane-aws-credentials` secret seeded by LocalStack's startup script, creates a native Kubernetes Secret in `crossplane-system`
 - **ProviderConfig** (`default`) — reads the `aws-credentials` Secret, routes all API calls to `http://localstack.localstack.svc.cluster.local:4566` with `hostnameImmutable: true`
 

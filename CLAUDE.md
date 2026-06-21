@@ -154,7 +154,8 @@ kubectl get kustomizations -n flux-system
 - [x] External Secrets Operator via Flux (apps/base/external-secrets/) — see docs/localstack-eso-setup.md
 - [x] Crossplane + AWS provider → LocalStack (apps/base/crossplane/) — see docs/crossplane-implementation.md
 - [x] Monitoring (kube-prometheus-stack) — see docs/kube-prometheus-stack-implementation.md
-- [ ] Calico network policies
+- [x] Traefik ingress controller + IngressRoutes — see docs/traefik-ingress-implementation.md
+- [x] Calico CNI (replaces kindnet so NetworkPolicy is enforced) — see docs/calico-network-policy-implementation.md
 - [ ] GitHub Actions CI/CD
 - [ ] infrastructure/ layer (deferred) — see docs/future/infrastructure-layer.md
 

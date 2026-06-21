@@ -16,7 +16,8 @@ provider "flux" {
 }
 
 resource "flux_bootstrap_git" "this" {
-  depends_on = [module.kind-cluster]
+  # Flux pods need a CNI to schedule, so wait for Calico.
+  depends_on = [module.kind-cluster, helm_release.calico]
 
   embedded_manifests = true
   path               = "kubernetes/clusters/${var.env}/${var.cluster_type}"

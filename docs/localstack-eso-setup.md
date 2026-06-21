@@ -24,9 +24,18 @@ ESO (env vars: AWS_ACCESS_KEY_ID/SECRET_ACCESS_KEY/AWS_ENDPOINT_URL_SECRETS_MANA
 Deployed via Flux HelmRelease from `localstack.github.io/helm-charts`.
 
 **Key values:**
+- `image.tag: "4.4.0"` — pinned, see "Why the image is pinned" below
 - `startServices` — pre-loads specific AWS services at startup (avoids lazy loading)
 - `enableStartupScripts: true` — enables the init script mechanism
 - `startupScriptContent` — runs `awslocal` commands once LocalStack is ready
+
+**Why the image is pinned:** As of 2026-03-23, LocalStack requires a `LOCALSTACK_AUTH_TOKEN`
+to start — even for the free tier — and the unpinned `latest` tag now exits with code 55
+("License activation failed") without one. `4.4.0` is the last Community release that boots
+tokenless, so the tag is pinned. **Don't bump it** without either keeping a pre-2026-03-23
+version or wiring a free auth token (from app.localstack.cloud) into the pod as
+`LOCALSTACK_AUTH_TOKEN` — the natural way would be via ESO, the same pattern used for the
+Crossplane credentials below.
 
 **Startup script** seeds the Crossplane AWS credentials into Secrets Manager:
 ```bash

@@ -38,7 +38,9 @@ kubernetes-iac/
 │   ├── crossplane-implementation.md
 │   ├── localstack-eso-setup.md
 │   └── future/             # Deferred plans for future implementation
-│       └── infrastructure-layer.md
+│       ├── infrastructure-layer.md
+│       ├── ai-agents-on-kubernetes.md   # Kagent/k8sGPT AI-ops agent track
+│       └── ml-pipelines.md              # Argo Workflows + MLflow batch/ML track
 ├── .env                    # GitHub token (gitignored)
 └── plan.md                 # Full implementation plan (reference)
 ```
@@ -158,6 +160,8 @@ kubectl get kustomizations -n flux-system
 - [x] Calico CNI (replaces kindnet so NetworkPolicy is enforced) — see docs/calico-network-policy-implementation.md
 - [ ] GitHub Actions CI/CD
 - [ ] infrastructure/ layer (deferred) — see docs/future/infrastructure-layer.md
+- [ ] AI agent on Kubernetes (deferred) — see docs/future/ai-agents-on-kubernetes.md
+- [ ] Batch orchestration + ML pipelines (deferred) — see docs/future/ml-pipelines.md
 
 ## When Helping With This Project
 

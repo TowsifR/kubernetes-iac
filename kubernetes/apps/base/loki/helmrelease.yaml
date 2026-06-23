@@ -59,7 +59,8 @@ spec:
     singleBinary:
       replicas: 1
       persistence:
-        enabled: false # KinD has no default StorageClass; index/WAL on emptyDir
+        enabled: true # PVC at /var/loki via KinD's default local-path StorageClass
+        size: 5Gi
 
     # SingleBinary doesn't auto-zero these; chart rejects install if both modes > 0
     read:

@@ -9,3 +9,5 @@ resources:
   - crossplane-provider-aws.yaml
   - traefik.yaml
   - kube-prometheus-stack.yaml
+  - loki.yaml
+  - alloy.yaml

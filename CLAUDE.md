@@ -158,6 +158,7 @@ kubectl get kustomizations -n flux-system
 - [x] Monitoring (kube-prometheus-stack) — see docs/kube-prometheus-stack-implementation.md
 - [x] Traefik ingress controller + IngressRoutes — see docs/traefik-ingress-implementation.md
 - [x] Calico CNI (replaces kindnet so NetworkPolicy is enforced) — see docs/calico-network-policy-implementation.md
+- [x] Loki logging (Loki + Alloy → LocalStack S3 via Crossplane bucket) — see docs/loki-logging-implementation.md
 - [ ] GitHub Actions CI/CD
 - [ ] infrastructure/ layer (deferred) — see docs/future/infrastructure-layer.md
 - [ ] AI agent on Kubernetes (deferred) — see docs/future/ai-agents-on-kubernetes.md

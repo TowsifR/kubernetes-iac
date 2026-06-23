@@ -1,0 +1,14 @@
+# S3 bucket for Loki chunks, provisioned in LocalStack by Crossplane.
+apiVersion: s3.aws.crossplane.io/v1beta1
+kind: Bucket
+metadata:
+  name: loki-chunks
+  annotations:
+    crossplane.io/external-name: loki-chunks # the actual bucket name created in S3
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    locationConstraint: "" # us-east-1 must not send an explicit constraint
+    acl: private
+  providerConfigRef:
+    name: default # the existing ProviderConfig pointing at LocalStack

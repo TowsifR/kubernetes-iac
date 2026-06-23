@@ -1,0 +1,24 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: loki
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kubernetes/apps/base/loki
+  prune: true
+  dependsOn:
+    - name: crossplane-provider-aws # Bucket CR needs the S3 CRD + AWS provider
+    - name: localstack # S3 endpoint + the source secret
+    - name: external-secrets # ExternalSecret needs the ESO operator
+  wait: true
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: loki
+      namespace: logging

@@ -8,7 +8,7 @@ metadata:
 spec:
   deletionPolicy: Delete
   forProvider:
-    locationConstraint: "" # us-east-1 must not send an explicit constraint
+    locationConstraint: us-west-2 # provider always sends a constraint; us-east-1 is rejected, empty is MalformedXML
     acl: private
   providerConfigRef:
     name: default # the existing ProviderConfig pointing at LocalStack

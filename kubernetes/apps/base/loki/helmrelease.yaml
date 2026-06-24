@@ -39,7 +39,7 @@ spec:
           admin: loki-chunks
         s3:
           endpoint: localstack.localstack.svc.cluster.local:4566
-          region: us-east-1
+          region: us-west-2 # must match the bucket's locationConstraint (see bucket.yaml)
           s3ForcePathStyle: true # path-style URLs (LocalStack)
           insecure: true # http, not https
 

@@ -43,7 +43,13 @@ spec:
           s3ForcePathStyle: true # path-style URLs (LocalStack)
           insecure: true # http, not https
 
-      # AWS creds: mounted shared-credentials file, not inline keys
+    singleBinary:
+      replicas: 1
+      persistence:
+        enabled: true # PVC at /var/loki via KinD's default local-path StorageClass
+        size: 5Gi
+      # AWS creds: mounted shared-credentials file, not inline keys.
+      # These belong on the deployment target (singleBinary), not loki: which only renders config.
       extraEnv:
         - name: AWS_SHARED_CREDENTIALS_FILE
           value: /etc/aws/credentials
@@ -55,12 +61,6 @@ spec:
         - name: aws-credentials
           mountPath: /etc/aws
           readOnly: true
-
-    singleBinary:
-      replicas: 1
-      persistence:
-        enabled: true # PVC at /var/loki via KinD's default local-path StorageClass
-        size: 5Gi
 
     # SingleBinary doesn't auto-zero these; chart rejects install if both modes > 0
     read:

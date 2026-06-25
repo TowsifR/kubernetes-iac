@@ -11,3 +11,5 @@ resources:
   - kube-prometheus-stack.yaml
   - loki.yaml
   - alloy.yaml
+  - agent-sandbox.yaml
+  - openshell.yaml

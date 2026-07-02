@@ -1,0 +1,24 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crossplane-provider-kubernetes
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kubernetes/apps/base/crossplane/provider-kubernetes
+  prune: true
+  dependsOn:
+    - name: crossplane-config
+  wait: true
+  healthChecks:
+    - apiVersion: pkg.crossplane.io/v1
+      kind: Provider
+      name: provider-kubernetes
+    - apiVersion: pkg.crossplane.io/v1
+      kind: Function
+      name: function-patch-and-transform

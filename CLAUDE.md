@@ -4,9 +4,14 @@ This is a learning project that mirrors enterprise Kubernetes infrastructure pat
 
 ## Project Purpose
 
-Learn infrastructure-as-code patterns from production repos:
-- `oneai-core-infra` (Terraform/EKS) → `terraform/` (Terraform/KinD)
-- `oneai-core-fleet-infra` (Flux/Helm) → `kubernetes/` (Flux + Kustomize)
+A **platform-engineering portfolio project**: a self-service, governed **sandbox platform for AI
+agents**, built control-plane-up on KinD with production-grade tooling (Terraform, Flux, Crossplane,
+Kyverno, Temporal, kube-prometheus-stack, …). The control plane is the product; the agent runtime is
+commodity.
+
+It began as a learning exercise — rebuilding enterprise IaC/GitOps patterns locally (Terraform/EKS →
+`terraform/` on KinD; Flux/Helm → `kubernetes/` with Kustomize) — and has grown into its own thing.
+See **[docs/vision.md](docs/vision.md)** for the north star, architecture, and roadmap.
 
 ## Directory Structure
 

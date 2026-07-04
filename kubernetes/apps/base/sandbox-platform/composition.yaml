@@ -33,7 +33,7 @@ spec:
                 toFieldPath: spec.forProvider.manifest.metadata.name
                 transforms:
                   - type: string
-                    string: { fmt: "sandbox-%s" }
+                    string: { type: Format, fmt: "sandbox-%s" }
           - name: sandbox
             base:
               apiVersion: kubernetes.crossplane.io/v1alpha2
@@ -60,4 +60,4 @@ spec:
                 toFieldPath: spec.forProvider.manifest.metadata.namespace
                 transforms:
                   - type: string
-                    string: { fmt: "sandbox-%s" }
+                    string: { type: Format, fmt: "sandbox-%s" }

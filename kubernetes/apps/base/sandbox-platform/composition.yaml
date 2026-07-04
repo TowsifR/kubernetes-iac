@@ -1,0 +1,63 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: sandbox
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.io/v1alpha1
+    kind: XSandbox
+  mode: Pipeline
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: namespace
+            base:
+              apiVersion: kubernetes.crossplane.io/v1alpha2
+              kind: Object
+              spec:
+                forProvider:
+                  manifest:
+                    apiVersion: v1
+                    kind: Namespace
+                    metadata: {}
+                providerConfigRef:
+                  name: kubernetes-provider
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.owner
+                toFieldPath: spec.forProvider.manifest.metadata.name
+                transforms:
+                  - type: string
+                    string: { fmt: "sandbox-%s" }
+          - name: sandbox
+            base:
+              apiVersion: kubernetes.crossplane.io/v1alpha2
+              kind: Object
+              spec:
+                forProvider:
+                  manifest:
+                    apiVersion: agents.x-k8s.io/v1beta1
+                    kind: Sandbox
+                    metadata:
+                      name: sandbox
+                    spec:
+                      podTemplate:
+                        spec:
+                          containers:
+                            - name: main
+                              image: busybox:1.36
+                              command: ["sleep", "infinity"]
+                providerConfigRef:
+                  name: kubernetes-provider
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.owner
+                toFieldPath: spec.forProvider.manifest.metadata.namespace
+                transforms:
+                  - type: string
+                    string: { fmt: "sandbox-%s" }

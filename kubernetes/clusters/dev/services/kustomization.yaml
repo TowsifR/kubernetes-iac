@@ -14,3 +14,4 @@ resources:
   - alloy.yaml
   - agent-sandbox.yaml
   - openshell.yaml
+  - sandbox-platform.yaml

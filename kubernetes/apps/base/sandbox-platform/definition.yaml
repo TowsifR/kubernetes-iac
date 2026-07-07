@@ -23,5 +23,21 @@ spec:
               properties:
                 owner:
                   type: string
+                  description: Who the sandbox belongs to. Stamped as a label; a governance hook.
+                size:
+                  type: string
+                  enum: [small, medium, large]
+                  default: small
+                  description: Resource tier — scales the namespace ResourceQuota.
+                image:
+                  type: string
+                  default: busybox:1.36
+                  description: Runtime image for the sandbox pod (allowlisted by policy).
               required:
                 - owner
+            status:
+              type: object
+              properties:
+                namespace:
+                  type: string
+                  description: Namespace the control plane provisioned for this sandbox.

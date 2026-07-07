@@ -164,7 +164,9 @@ kubectl get kustomizations -n flux-system
 - [x] Traefik ingress controller + IngressRoutes — see docs/traefik-ingress-implementation.md
 - [x] Calico CNI (replaces kindnet so NetworkPolicy is enforced) — see docs/calico-network-policy-implementation.md
 - [x] Loki logging (Loki + Alloy → LocalStack S3 via Crossplane bucket) — see docs/loki-logging-implementation.md
-- [~] OpenShell sandbox platform — Phase 1: control plane (agent-sandbox + OpenShell gateway) — see docs/openshell-sandbox-implementation.md
+- [x] agent-sandbox primitive + OpenShell gateway (the learning detour) — see docs/openshell-sandbox-implementation.md
+- [~] Sandbox control plane — `kind: Sandbox` Crossplane Composition (KCL) over agent-sandbox; per-sandbox guardrail bundle (ns/quota/limits/netpol), size tier + image — see docs/sandbox-control-plane-implementation.md
+- [ ] Governance — Kyverno admission policies on the Sandbox claim
 - [ ] GitHub Actions CI/CD
 - [ ] infrastructure/ layer (deferred) — see docs/future/infrastructure-layer.md
 - [ ] AI agent on Kubernetes (deferred) — see docs/future/ai-agents-on-kubernetes.md

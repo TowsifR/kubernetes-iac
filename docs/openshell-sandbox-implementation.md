@@ -1,4 +1,9 @@
-# OpenShell Sandbox Platform — Phase 1 (control plane)
+# OpenShell Sandbox Platform — Phase 1 (the detour)
+
+> **Superseded as the direction.** This was the learning detour that surfaced the `agent-sandbox`
+> primitive. The project's flagship is now our *own* control plane over that primitive — see
+> [sandbox-control-plane-implementation.md](sandbox-control-plane-implementation.md). OpenShell (the
+> NVIDIA gateway) stays installed as a reference/comparison, not the product.
 
 Stands up a **sandbox-as-a-service control plane**: a governed gateway that provisions isolated,
 policy-controlled sandbox environments for AI agents to run in. Phase 1 deploys the control plane and

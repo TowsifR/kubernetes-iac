@@ -17,7 +17,7 @@ spec:
         spec:
           source: |
             oxr = option("params").oxr
-            dxr = option("params").dxr
+            _dxr = option("params").dxr
 
             owner = oxr.spec.owner
             size = oxr.spec.size or "small"
@@ -84,10 +84,10 @@ spec:
             ]
 
             # Report where it landed (readiness is the standard Ready condition, set by the ready step).
-            dxr.status.namespace = ns
+            _dxr.status = {namespace = ns}
 
             # Wrap each manifest in a provider-kubernetes Object (written once); return the XR too.
-            items = [dxr] + [{
+            items = [_dxr] + [{
                 apiVersion = "kubernetes.crossplane.io/v1alpha2"
                 kind = "Object"
                 metadata.annotations = {"krm.kcl.dev/composition-resource-name" = r.name}

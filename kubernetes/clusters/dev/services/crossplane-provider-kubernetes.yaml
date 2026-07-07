@@ -21,4 +21,7 @@ spec:
       name: provider-kubernetes
     - apiVersion: pkg.crossplane.io/v1
       kind: Function
-      name: function-patch-and-transform
+      name: function-kcl
+    - apiVersion: pkg.crossplane.io/v1
+      kind: Function
+      name: function-auto-ready

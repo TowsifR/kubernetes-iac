@@ -8,56 +8,73 @@ spec:
     kind: XSandbox
   mode: Pipeline
   pipeline:
-    - step: patch-and-transform
+    - step: render
       functionRef:
-        name: function-patch-and-transform
+        name: function-kcl
       input:
-        apiVersion: pt.fn.crossplane.io/v1beta1
-        kind: Resources
-        resources:
-          - name: namespace
-            base:
-              apiVersion: kubernetes.crossplane.io/v1alpha2
-              kind: Object
-              spec:
-                forProvider:
-                  manifest:
-                    apiVersion: v1
-                    kind: Namespace
-                    metadata: {}
-                providerConfigRef:
-                  name: kubernetes-provider
-            patches:
-              - type: FromCompositeFieldPath
-                fromFieldPath: spec.owner
-                toFieldPath: spec.forProvider.manifest.metadata.name
-                transforms:
-                  - type: string
-                    string: { type: Format, fmt: "sandbox-%s" }
-          - name: sandbox
-            base:
-              apiVersion: kubernetes.crossplane.io/v1alpha2
-              kind: Object
-              spec:
-                forProvider:
-                  manifest:
-                    apiVersion: agents.x-k8s.io/v1beta1
-                    kind: Sandbox
-                    metadata:
-                      name: sandbox
-                    spec:
-                      podTemplate:
-                        spec:
-                          containers:
-                            - name: main
-                              image: busybox:1.36
-                              command: ["sleep", "infinity"]
-                providerConfigRef:
-                  name: kubernetes-provider
-            patches:
-              - type: FromCompositeFieldPath
-                fromFieldPath: spec.owner
-                toFieldPath: spec.forProvider.manifest.metadata.namespace
-                transforms:
-                  - type: string
-                    string: { type: Format, fmt: "sandbox-%s" }
+        apiVersion: krm.kcl.dev/v1alpha1
+        kind: KCLInput
+        spec:
+          source: |
+            oxr = option("params").oxr
+            ns = "sandbox-" + oxr.spec.owner
+
+            # The k8s objects to provision for each sandbox (plain manifests).
+            _resources = [
+                {name = "namespace", manifest = {
+                    apiVersion = "v1"
+                    kind = "Namespace"
+                    metadata.name = ns
+                }}
+                {name = "quota", manifest = {
+                    apiVersion = "v1"
+                    kind = "ResourceQuota"
+                    metadata = {name = "sandbox", namespace = ns}
+                    spec.hard = {
+                        "pods" = "5"
+                        "requests.cpu" = "1"
+                        "requests.memory" = "1Gi"
+                        "limits.cpu" = "2"
+                        "limits.memory" = "2Gi"
+                    }
+                }}
+                {name = "limits", manifest = {
+                    apiVersion = "v1"
+                    kind = "LimitRange"
+                    metadata = {name = "sandbox", namespace = ns}
+                    spec.limits = [{
+                        type = "Container"
+                        default = {cpu = "500m", memory = "512Mi"}
+                        defaultRequest = {cpu = "100m", memory = "128Mi"}
+                        max = {cpu = "1", memory = "1Gi"}
+                    }]
+                }}
+                {name = "network-policy", manifest = {
+                    apiVersion = "networking.k8s.io/v1"
+                    kind = "NetworkPolicy"
+                    metadata = {name = "default-deny-ingress", namespace = ns}
+                    spec = {podSelector = {}, policyTypes = ["Ingress"]}
+                }}
+                {name = "sandbox", manifest = {
+                    apiVersion = "agents.x-k8s.io/v1beta1"
+                    kind = "Sandbox"
+                    metadata = {name = "sandbox", namespace = ns}
+                    spec.podTemplate.spec.containers = [{
+                        name = "main"
+                        image = "busybox:1.36"
+                        command = ["sleep", "infinity"]
+                    }]
+                }}
+            ]
+
+            # Wrap each manifest in a provider-kubernetes Object (written once).
+            items = [{
+                apiVersion = "kubernetes.crossplane.io/v1alpha2"
+                kind = "Object"
+                metadata.annotations = {"krm.kcl.dev/composition-resource-name" = r.name}
+                spec.forProvider.manifest = r.manifest
+                spec.providerConfigRef.name = "kubernetes-provider"
+            } for r in _resources]
+    - step: ready
+      functionRef:
+        name: function-auto-ready

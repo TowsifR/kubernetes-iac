@@ -17,3 +17,4 @@ resources:
   - sandbox-platform.yaml
   - kyverno.yaml
   - sandbox-policies.yaml
+  - cloudnative-pg.yaml

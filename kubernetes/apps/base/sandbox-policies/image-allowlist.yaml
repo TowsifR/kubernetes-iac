@@ -1,0 +1,28 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: sandbox-image-allowlist
+spec:
+  rules:
+    - name: restrict-sandbox-image
+      match:
+        any:
+          # Guard the claim (user feedback) and the composite (closes direct-create bypass).
+          - resources:
+              kinds:
+                - platform.example.io/v1alpha1/Sandbox
+                - platform.example.io/v1alpha1/XSandbox
+      validate:
+        failureAction: Enforce
+        message: >-
+          spec.image "{{ request.object.spec.image }}" is not permitted.
+          Allowed images: busybox:1.36, python:3.12-slim, node:20-slim.
+        deny:
+          conditions:
+            any:
+              - key: "{{ request.object.spec.image }}"
+                operator: AnyNotIn
+                value:
+                  - busybox:1.36
+                  - python:3.12-slim
+                  - node:20-slim

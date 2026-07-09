@@ -1,0 +1,30 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kyverno
+  namespace: kyverno
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: kyverno
+      version: "3.8.1" # appVersion v1.18.1
+      sourceRef:
+        kind: HelmRepository
+        name: kyverno
+        namespace: kyverno
+      interval: 12h
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  values:
+    # Single-node KinD — drop each controller from the HA default of 3 to 1.
+    admissionController:
+      replicas: 1
+    backgroundController:
+      replicas: 1
+    cleanupController:
+      replicas: 1
+    reportsController:
+      replicas: 1

@@ -1,0 +1,18 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: sandbox-policies
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./kubernetes/apps/base/sandbox-policies
+  prune: true
+  dependsOn:
+    - name: kyverno # the engine + ClusterPolicy CRD
+    - name: sandbox-platform # the Sandbox CRD the policy matches on
+  wait: true

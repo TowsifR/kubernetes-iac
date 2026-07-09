@@ -15,3 +15,5 @@ resources:
   - agent-sandbox.yaml
   - openshell.yaml
   - sandbox-platform.yaml
+  - kyverno.yaml
+  - sandbox-policies.yaml

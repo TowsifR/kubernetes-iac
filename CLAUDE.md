@@ -166,7 +166,7 @@ kubectl get kustomizations -n flux-system
 - [x] Loki logging (Loki + Alloy → LocalStack S3 via Crossplane bucket) — see docs/loki-logging-implementation.md
 - [x] agent-sandbox primitive + OpenShell gateway (the learning detour) — see docs/openshell-sandbox-implementation.md
 - [~] Sandbox control plane — `kind: Sandbox` Crossplane Composition (KCL) over agent-sandbox; per-sandbox guardrail bundle (ns/quota/limits/netpol), size tier + image — see docs/sandbox-control-plane-implementation.md
-- [ ] Governance — Kyverno admission policies on the Sandbox claim
+- [~] Governance — Kyverno admission policies on the Sandbox claim (image allowlist) — see docs/kyverno-governance-implementation.md
 - [ ] GitHub Actions CI/CD
 - [ ] infrastructure/ layer (deferred) — see docs/future/infrastructure-layer.md
 - [ ] AI agent on Kubernetes (deferred) — see docs/future/ai-agents-on-kubernetes.md

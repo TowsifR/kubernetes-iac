@@ -1,0 +1,15 @@
+# Temporal Web UI — http://temporal.localtest.me
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: temporal-web
+  namespace: temporal
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`temporal.localtest.me`)
+      kind: Rule
+      services:
+        - name: temporal-web
+          port: 8080

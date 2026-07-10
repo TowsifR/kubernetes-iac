@@ -1,0 +1,69 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: temporal
+  namespace: temporal
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: temporal
+      version: "1.5.0" # appVersion 1.31.1
+      sourceRef:
+        kind: HelmRepository
+        name: temporal
+        namespace: temporal
+      interval: 12h
+  install:
+    remediation:
+      retries: 3 # first install can race CNPG provisioning the DB
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    schema:
+      useHelmHooks: false # deployed by Flux; helm hooks don't fit
+
+    server:
+      replicaCount: 1
+      config:
+        numHistoryShards: 512 # immutable after first deploy
+        persistence:
+          defaultStore: default
+          visibilityStore: visibility
+          datastores:
+            default:
+              sql:
+                pluginName: postgres12
+                databaseName: temporal
+                connectAddr: "temporal-postgresql-rw:5432"
+                connectProtocol: tcp
+                user: temporal
+                existingSecret: temporal-postgresql-app # CNPG-generated
+                secretKey: password
+                createDatabase: false # CNPG pre-created it; app user lacks CREATEDB
+                manageSchema: true
+            visibility:
+              sql:
+                pluginName: postgres12
+                databaseName: temporal_visibility
+                connectAddr: "temporal-postgresql-rw:5432"
+                connectProtocol: tcp
+                user: temporal
+                existingSecret: temporal-postgresql-app
+                secretKey: password
+                createDatabase: false
+                manageSchema: true
+        namespaces:
+          create: true
+          namespace:
+            - name: default
+              retention: 3d
+
+    web:
+      enabled: true
+
+    shims:
+      # 1.29-compat shims; off for images >= 1.30
+      dockerize: false
+      elasticsearchTool: false

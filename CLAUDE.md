@@ -168,7 +168,7 @@ kubectl get kustomizations -n flux-system
 - [~] Sandbox control plane — `kind: Sandbox` Crossplane Composition (KCL) over agent-sandbox; per-sandbox guardrail bundle (ns/quota/limits/netpol), size tier + image — see docs/sandbox-control-plane-implementation.md
 - [~] Governance — Kyverno admission policies on the Sandbox claim (image allowlist) — see docs/kyverno-governance-implementation.md
 - [x] CloudNativePG operator (Postgres for the upcoming Temporal) — see docs/cloudnative-pg-implementation.md
-- [ ] Orchestration — Temporal durable lifecycle (Postgres via CloudNativePG)
+- [~] Orchestration — Temporal (Postgres via CloudNativePG); lifecycle workflows not yet wired to the Sandbox API — see docs/temporal-implementation.md
 - [ ] GitHub Actions CI/CD
 - [ ] infrastructure/ layer (deferred) — see docs/future/infrastructure-layer.md
 - [ ] AI agent on Kubernetes (deferred) — see docs/future/ai-agents-on-kubernetes.md

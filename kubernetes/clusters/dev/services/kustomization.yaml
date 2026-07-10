@@ -18,3 +18,4 @@ resources:
   - kyverno.yaml
   - sandbox-policies.yaml
   - cloudnative-pg.yaml
+  - temporal.yaml

@@ -71,10 +71,22 @@ spec:
                     metadata = {name = "default-deny-ingress", namespace = ns}
                     spec = {podSelector = {}, policyTypes = ["Ingress"]}
                 }}
+                {name = "terminal-binding", manifest = {
+                    apiVersion = "rbac.authorization.k8s.io/v1"
+                    kind = "RoleBinding"
+                    metadata = {name = "sandbox-terminal", namespace = ns}
+                    # Scopes the cluster-wide ClusterRole *definition* to this namespace alone, so the
+                    # control plane can exec into sandboxes and nothing else. Dies with the namespace.
+                    roleRef = {apiGroup = "rbac.authorization.k8s.io", kind = "ClusterRole", name = "sandbox-terminal"}
+                    # The platform names the control plane's identity — the one seam between the two repos.
+                    subjects = [{kind = "ServiceAccount", name = "sandbox-control-plane", namespace = "sandbox-system"}]
+                }}
                 {name = "sandbox", manifest = {
                     apiVersion = "agents.x-k8s.io/v1beta1"
                     kind = "Sandbox"
                     metadata = {name = "sandbox", namespace = ns}
+                    # Label the pod too, not just the namespace — it's how the control plane finds it.
+                    spec.podTemplate.metadata.labels = _sandbox_labels
                     spec.podTemplate.spec.containers = [{
                         name = "main"
                         image = image

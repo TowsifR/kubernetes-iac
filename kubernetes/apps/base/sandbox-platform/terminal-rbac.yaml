@@ -1,0 +1,13 @@
+# What the control plane may do inside a sandbox namespace. No ClusterRoleBinding on purpose — the
+# Composition binds this per-sandbox, so exec is scoped to sandboxes and is GC'd with them.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sandbox-terminal
+rules:
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, list] # find the sandbox's pod by label
+  - apiGroups: [""]
+    resources: [pods/exec]
+    verbs: [create] # open a shell in it

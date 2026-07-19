@@ -5,4 +5,5 @@ resources:
   - providerconfig.yaml
   - definition.yaml
   - terminal-rbac.yaml
+  - opencode-zen-secret.yaml
   - composition.yaml

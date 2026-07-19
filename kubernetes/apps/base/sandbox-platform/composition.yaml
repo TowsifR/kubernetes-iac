@@ -91,6 +91,12 @@ spec:
                         name = "main"
                         image = image
                         command = ["sleep", "infinity"]
+                        # The Zen key, synced here by the ClusterExternalSecret. Required, not optional:
+                        # the pod waits for ESO rather than starting without a key (env is fixed at start).
+                        env = [{
+                            name = "OPENCODE_API_KEY"
+                            valueFrom.secretKeyRef = {name = "opencode-zen", key = "key"}
+                        }]
                     }]
                 }}
             ]

@@ -33,6 +33,12 @@ spec:
                   type: string
                   default: busybox:1.36
                   description: Runtime image for the sandbox pod (allowlisted by policy).
+                persona:
+                  type: string
+                  enum: [builder, architect]
+                  description: >-
+                    Governed agent flavor. When set, the Composition picks the image and mounts a
+                    locked-down OpenCode config; when absent, the raw image flow is used.
               required:
                 - owner
             status:

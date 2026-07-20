@@ -11,3 +11,6 @@ rules:
   - apiGroups: [""]
     resources: [pods/exec]
     verbs: [create] # open a shell in it
+  - apiGroups: [""]
+    resources: [pods/portforward]
+    verbs: [get, create] # tunnel chat HTTP/SSE to the pod's opencode serve (bypasses the NetworkPolicy, like exec)

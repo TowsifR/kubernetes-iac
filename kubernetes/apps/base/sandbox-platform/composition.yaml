@@ -52,6 +52,12 @@ spec:
             _mounts = [{name = "opencode-config", mountPath = "/etc/opencode", readOnly = True}] if _has_persona else []
             _volumes = [{name = "opencode-config", configMap = {name = "opencode-config"}}] if _has_persona else []
 
+            # An opencode image runs `opencode serve` (the chat agent); it binds localhost and is reached
+            # via portforward like exec, so it stays behind the NetworkPolicy. Heavier than a shell, hence the memory.
+            _is_opencode = image == "sandbox-opencode:dev"
+            _command = ["opencode", "serve", "--port", "4096"] if _is_opencode else ["sleep", "infinity"]
+            _pod_resources = {requests = {cpu = "200m", memory = "512Mi"}, limits = {cpu = "1", memory = "1Gi"}} if _is_opencode else {}
+
             # Identity = the claim name (unique per claim), so one owner can hold many
             # sandboxes. Falls back to the XR name if created without a claim.
             _labels = oxr.metadata.labels or {}
@@ -99,7 +105,7 @@ spec:
                         type = "Container"
                         default = {cpu = "500m", memory = "512Mi"}
                         defaultRequest = {cpu = "100m", memory = "128Mi"}
-                        max = {cpu = "1", memory = "1Gi"}
+                        max = {cpu = "2", memory = "2Gi"}
                     }]
                 }}
                 {name = "network-policy", manifest = {
@@ -127,7 +133,7 @@ spec:
                     spec.podTemplate.spec.containers = [{
                         name = "main"
                         image = image
-                        command = ["sleep", "infinity"]
+                        command = _command
                         # The Zen key, synced here by the ClusterExternalSecret. Required, not optional:
                         # the pod waits for ESO rather than starting without a key (env is fixed at start).
                         env = [{
@@ -135,6 +141,7 @@ spec:
                             valueFrom.secretKeyRef = {name = "opencode-zen", key = "key"}
                         }]
                         volumeMounts = _mounts
+                        resources = _pod_resources
                     }]
                     spec.podTemplate.spec.volumes = _volumes
                 }}

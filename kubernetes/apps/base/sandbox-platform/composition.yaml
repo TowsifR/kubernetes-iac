@@ -16,12 +16,41 @@ spec:
         kind: KCLInput
         spec:
           source: |
+            import json
+
             oxr = option("params").oxr
             _dxr = option("params").dxr
 
             owner = oxr.spec.owner
             size = oxr.spec.size or "small"
-            image = oxr.spec.image or "busybox:1.36"
+            persona = oxr.spec.persona or ""
+
+            # The governed flavor catalog (config-as-data): a persona picks the image and a locked-down
+            # OpenCode config the sandboxed user can't override. `permission` gates its tools — the guardrail.
+            _personas = {
+                builder = {
+                    image = "sandbox-opencode:dev"
+                    model = "opencode/deepseek-v4-flash-free"
+                    permission = {edit = "allow", bash = "allow", webfetch = "allow", websearch = "allow"}
+                    prompt = "# Builder\nYou are a pragmatic software engineer in a fresh, empty sandbox. You build small, self-contained programs from a short brief and run them to prove they work.\n\n## Method\n- Restate the goal in one line, then implement the simplest thing that works.\n- Write real, runnable files; python and node are both installed. Prefer the standard library.\n- Run what you write, show the output, and fix what breaks.\n- Keep it to a handful of files; no frameworks or network services unless asked.\n\n## Output\nThe working files, plus one line on how to run it and what it produced.\n"
+                }
+                architect = {
+                    image = "sandbox-opencode:dev"
+                    model = "opencode/deepseek-v4-flash-free"
+                    permission = {edit = "allow", bash = "deny", webfetch = "allow", websearch = "allow"}
+                    prompt = "# Architect\nYou are a software architect in a fresh sandbox. You turn a short brief into a clear system design. You do not write application code or run commands; you produce the design others build from.\n\n## Method\n- State the problem, the key requirements, and the main constraints in a few lines.\n- Propose a design: the components, how they interact, the data flow, and the trade-offs.\n- Draw it as a fenced Mermaid diagram (```mermaid) so it renders anywhere.\n- Call out what you left out and what you would revisit at scale.\n\n## Output\nA single design.md: overview, the Mermaid diagram, components, data flow, trade-offs.\n"
+                }
+            }
+
+            # With a persona we use its catalog entry; without one, the raw image (as today).
+            _has_persona = persona in _personas
+            _p = _personas[persona] if _has_persona else {image = oxr.spec.image or "busybox:1.36", model = "", permission = {}, prompt = ""}
+            image = _p.image
+
+            # OpenCode reads /etc/opencode/opencode.json as managed config (highest precedence, non-overridable).
+            _opencode_cfg = {"$schema" = "https://opencode.ai/config.json", model = _p.model, permission = _p.permission, instructions = ["/etc/opencode/persona.md"]}
+            _mounts = [{name = "opencode-config", mountPath = "/etc/opencode", readOnly = True}] if _has_persona else []
+            _volumes = [{name = "opencode-config", configMap = {name = "opencode-config"}}] if _has_persona else []
 
             # Identity = the claim name (unique per claim), so one owner can hold many
             # sandboxes. Falls back to the XR name if created without a claim.
@@ -40,6 +69,14 @@ spec:
                 "platform.example.io/owner" = owner
                 "platform.example.io/sandbox" = name
             }
+
+            # The persona's OpenCode config, delivered as a ConfigMap the pod mounts.
+            _configmap = [{name = "opencode-config", manifest = {
+                apiVersion = "v1"
+                kind = "ConfigMap"
+                metadata = {name = "opencode-config", namespace = ns}
+                data = {"opencode.json" = json.encode(_opencode_cfg), "persona.md" = _p.prompt}
+            }}] if _has_persona else []
 
             # The k8s objects to provision for each sandbox (plain manifests).
             _resources = [
@@ -97,7 +134,9 @@ spec:
                             name = "OPENCODE_API_KEY"
                             valueFrom.secretKeyRef = {name = "opencode-zen", key = "key"}
                         }]
+                        volumeMounts = _mounts
                     }]
+                    spec.podTemplate.spec.volumes = _volumes
                 }}
             ]
 
@@ -111,7 +150,7 @@ spec:
                 metadata.annotations = {"krm.kcl.dev/composition-resource-name" = r.name}
                 spec.forProvider.manifest = r.manifest
                 spec.providerConfigRef.name = "kubernetes-provider"
-            } for r in _resources]
+            } for r in _resources + _configmap]
     - step: ready
       functionRef:
         name: function-auto-ready
